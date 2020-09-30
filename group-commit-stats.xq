@@ -44,12 +44,19 @@ for $year in /years/year
 return
     element year {
         $year/@*,
+        attribute total-changes { xs:integer($year/@total-detetions) + xs:integer($year/@total-insertions)},
         
         for $group-key in map:keys($groups)
         let $group-fn := $groups($group-key)
         let $group-users := $year/user[$group-fn(id)]
+        let $group-total-commits := sum($group-users/commits)
+        let $group-total-files-changed := sum($group-users/files-changed)
+        let $group-total-deletions := sum($group-users/deletions)
+        let $group-total-insertions := sum($group-users/insertions)
+        let $group-total-loc-change := sum($group-users/loc-change)
+        let $group-total-changes := $group-total-deletions + $group-total-insertions
         return
-            <group id="{$group-key}" total-commits="{sum($group-users/commits)}">
+            <group id="{$group-key}" total-commits="{$group-total-commits}" total-files-changed="{$group-total-files-changed}" total-detetions="{$group-total-deletions}" total-insertions="{$group-total-insertions}" total-loc-change="{$group-total-loc-change}" total-change="{$group-total-changes}">
             {
                 $group-users ! <user id="{id}" commits="{commits}"/>
             }
